@@ -1,0 +1,15 @@
+'use client';
+import {useEffect,useState} from 'react';
+type Country='AO'|'MZ';
+const data={
+ AO:{label:'Angola',currency:'Kz',plans:[{name:'Básico',price:'4.000'},{name:'Intermédio',price:'8.000'},{name:'Premium',price:'20.000'}]},
+ MZ:{label:'Moçambique',currency:'MT',plans:[{name:'GO',price:'279'},{name:'INTERMEDIÁRIO',price:'529'},{name:'PRO',price:'1.379'}]}
+};
+export default function Plans({initialCountry,detectedCountry}:{initialCountry:Country,detectedCountry:string}){
+ const [country,setCountry]=useState<Country>(initialCountry);
+ const [remaining,setRemaining]=useState(240);
+ useEffect(()=>{const start=Date.now();const id=setInterval(()=>{const elapsed=(Date.now()-start)/1000;setRemaining(Math.max(0,Math.ceil(240-elapsed)))},250);return ()=>clearInterval(id)},[]);
+ const setLocation=(c:Country)=>{setCountry(c);const url=new URL(window.location.href);url.searchParams.set('pais',c.toLowerCase());window.history.replaceState(null,'',url.toString())};
+ const d=data[country];
+ return <><header className="top"><a className="logo" href="/">RealPayZ<span>.</span></a><nav><a href="#planos">Ver planos</a></nav></header><main><section className="hero"><span className="eyebrow">PLANOS REALPAYZ • {d.label.toUpperCase()}</span><h1>O plano certo para <em>começar hoje.</em></h1><p>Escolha a opção que combina com os seus objetivos. Valores apresentados na moeda do país selecionado.</p><div className="location"><span>🌍 País:</span><button className={country==='MZ'?'selected':''} onClick={()=>setLocation('MZ')}>🇲🇿 Moçambique</button><button className={country==='AO'?'selected':''} onClick={()=>setLocation('AO')}>🇦🇴 Angola</button></div><small>Seleção automática por localização aproximada do IP. Pode alterar o país acima.</small></section><section id="planos" className="plans"><div className="intro"><span className="eyebrow">ESCOLHA O SEU PLANO</span><h2>Planos simples e claros</h2><p>Preços em {d.currency} para {d.label}.</p></div><div className="timer">{remaining>0?<><span>⏱️ Contagem promocional ilustrativa</span><strong>{String(Math.floor(remaining/60)).padStart(2,'0')}:{String(remaining%60).padStart(2,'0')}</strong><small>Este contador é demonstrativo e não representa o fim real da oferta.</small></>:<strong>🎁 Você ainda pode garantir sua oferta hoje!</strong>}</div><div className="cards">{d.plans.map((p,i)=><article className={'card '+(i===1?'featured':'')} key={p.name}>{i===1&&<div className="ribbon">MAIS ESCOLHIDO</div>}<h3>{p.name}</h3><p className="caption">Plano {i===0?'essencial':i===1?'equilibrado':'completo'}</p><div className="price">{p.price}<span> {d.currency}</span></div><p className="details">Consulte as condições e os benefícios antes de adquirir.</p><button className="cta" disabled title="Checkout ainda não configurado">Pagamento em configuração</button></article>)}</div><p className="notice">Os pagamentos para {d.label} ainda não foram configurados nesta versão de teste. Nenhuma compra será cobrada.</p></section></main><footer>© {new Date().getFullYear()} RealPayZ • Versão de testes • IP identificado: {detectedCountry}</footer></>
+}
