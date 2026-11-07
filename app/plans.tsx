@@ -2,7 +2,7 @@
 import {useEffect,useState} from 'react';
 type Country='AO'|'MZ';
 const data={
- AO:{label:'Angola',currency:'Kz',plans:[{name:'Básico',price:'4.000'},{name:'Intermédio',price:'8.000'},{name:'Premium',price:'20.000'}]},
+ AO:{label:'Angola',currency:'Kz',plans:[{name:'Básico',price:'3.990'},{name:'Intermédio',price:'7.690'},{name:'Premium',price:'17.990'}]},
  MZ:{label:'Moçambique',currency:'MT',plans:[{name:'GO',price:'279'},{name:'INTERMEDIÁRIO',price:'529'},{name:'PRO',price:'1.379'}]}
 };
 export default function Plans({initialCountry,detectedCountry}:{initialCountry:Country,detectedCountry:string}){
