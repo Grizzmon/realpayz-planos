@@ -1,6 +1,7 @@
 'use client';
-import {useEffect,useState} from 'react';
+import {useEffect,useRef,useState} from 'react';
 type Country='AO'|'MZ';
+declare global {interface Window {fbq?: (...args: unknown[])=>void}}
 const data={
  AO:{label:'Angola',currency:'Kz',plans:[{name:'Básico',price:'3.990'},{name:'Intermédio',price:'7.690'},{name:'Premium',price:'17.990'}]},
  MZ:{label:'Moçambique',currency:'MT',plans:[{name:'GO',price:'279'},{name:'INTERMEDIÁRIO',price:'529'},{name:'PRO',price:'1.379'}]}
@@ -8,6 +9,19 @@ const data={
 export default function Plans({initialCountry,detectedCountry}:{initialCountry:Country,detectedCountry:string}){
  const [country,setCountry]=useState<Country>(initialCountry);
  const [remaining,setRemaining]=useState(240);
+ const trackedCountries=useRef<Set<Country>>(new Set());
+ useEffect(()=>{
+  const section=document.getElementById('planos');
+  if(!section)return;
+  const observer=new IntersectionObserver((entries)=>{
+   if(!entries.some(entry=>entry.isIntersecting)||trackedCountries.current.has(country))return;
+   if(typeof window.fbq!=='function')return;
+   trackedCountries.current.add(country);
+   window.fbq('trackCustom','PlanosVisualizados',{pais:country,moeda:data[country].currency});
+  },{threshold:0.1});
+  observer.observe(section);
+  return ()=>observer.disconnect();
+ },[country]);
  useEffect(()=>{const start=Date.now();const id=setInterval(()=>{const elapsed=(Date.now()-start)/1000;setRemaining(Math.max(0,Math.ceil(240-elapsed)))},250);return ()=>clearInterval(id)},[]);
  const setLocation=(c:Country)=>{setCountry(c);const url=new URL(window.location.href);url.searchParams.set('pais',c.toLowerCase());window.history.replaceState(null,'',url.toString())};
  const d=data[country];
